@@ -9,4 +9,10 @@ public class MainController {
     public String index() {
         return "Welcome to Clinic Grid";
     }
+
+    @GetMapping("/api/hospital/{hospital_id}/dashboard")
+    public String dashboard(){
+        return "Welcome user , you have logged in";
+    }
+
 }

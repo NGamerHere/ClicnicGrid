@@ -25,28 +25,29 @@ public class AuthController {
 
     @PostMapping("/api/login")
     public ResponseEntity<?> login(@RequestBody Login login) {
-         User user=userRepository.findByPhone(login.phone);
-         if(user == null){
-             return ResponseEntity.status(404).body(Map.of(
-                     "error","user not found"
-             ));
-         }
+        User user = userRepository.findByPhone(login.phone);
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of(
+                    "error", "user not found"
+            ));
+        }
 
-         if(user.comparePassword(login.password)){
-             HashMap<String,Object> tokenData=new HashMap<>();
-             tokenData.put("id",user.getId());
-             tokenData.put("role",user.getRole());
-             String token=jwtUtil.generateToken(user.getFirstName()+" "+user.getLastName(),tokenData);
-             return ResponseEntity.ok(Map.of(
-                     "token",token,
-                     "user_id",user.getId(),
-                     "role",user.getRole()
-             ));
-         }else {
-             return ResponseEntity.status(404).body(Map.of(
-                     "error","wrong password"
-             ));
-         }
+        if (user.comparePassword(login.password)) {
+            HashMap<String, Object> tokenData = new HashMap<>();
+            tokenData.put("id", user.getId());
+            tokenData.put("role", user.getRole());
+            String token = jwtUtil.generateToken(user.getFirstName() + " " + user.getLastName(), tokenData);
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "hospital_id",user.getHospital().getId(),
+                    "user_id", user.getId(),
+                    "role", user.getRole()
+            ));
+        } else {
+            return ResponseEntity.status(404).body(Map.of(
+                    "error", "wrong password"
+            ));
+        }
 
     }
 }
