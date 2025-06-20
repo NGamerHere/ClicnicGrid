@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import './dashboardScreens/Dashboard.dart';
 import './dashboardScreens/pharmacy.dart';
+import "./dashboardScreens/Settings.dart";
+import "./dashboardScreens/PatientsPage.dart";
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,9 +18,9 @@ class _HomePageState extends State<HomePage> {
   // Pages to show when you tap different icons
   static final List<Widget> _pages = <Widget>[
     const DashboardPage(),
-    const pharamacyPage(),
-    Center(child: Text('Page 2', style: TextStyle(fontSize: 24))),
-    Center(child: Text('Settings', style: TextStyle(fontSize: 24))),
+    const PharmacyPage(),
+    const PatientsPage(),
+    const SettingsPage(),
   ];
 
   void _onItemTapped(int index) {

@@ -9,9 +9,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _email    = TextEditingController();
+  final _email = TextEditingController();
   final _password = TextEditingController();
-  final _formKey  = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   /// 👉 1.  Make submit async so we can `await` API / storage calls.
   Future<void> _submit() async {
@@ -42,23 +42,45 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Text(
+                  'Welcome Back',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    letterSpacing: 1.2,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               TextFormField(
                 controller: _email,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
                 validator: (v) =>
-                v!.contains('@') ? null : 'Enter a valid email',
+                    v!.contains('@') ? null : 'Enter a valid email',
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _password,
                 obscureText: true,
-                decoration: const InputDecoration(labelText: 'Password'),
-                validator: (v) =>
-                v!.length >= 6 ? null : 'Min 6 characters',
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                validator: (v) => v!.length >= 6 ? null : 'Min 6 characters',
               ),
               const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _submit,                   // ← now async
+                onPressed: _submit,
                 child: const Text('Sign in'),
               ),
             ],

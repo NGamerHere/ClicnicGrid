@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -19,9 +20,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Settings"),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
+        title: const Text("Settings",style: TextStyle(fontSize: 35,fontWeight: FontWeight.bold),),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -30,7 +29,7 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             // User Profile Section
             _buildUserProfileSection(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 10),
 
             // Account Settings Section
             _buildSectionHeader("Account Settings"),
@@ -55,40 +54,40 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ]),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 5),
 
             // App Settings Section
-            _buildSectionHeader("App Settings"),
-            _buildSettingsCard([
-              _buildSwitchTile(
-                icon: Icons.notifications,
-                title: "Notifications",
-                subtitle: "Enable push notifications",
-                value: notificationsEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    notificationsEnabled = value;
-                  });
-                },
-              ),
-              _buildSwitchTile(
-                icon: Icons.dark_mode,
-                title: "Dark Mode",
-                subtitle: "Enable dark theme",
-                value: darkModeEnabled,
-                onChanged: (value) {
-                  setState(() {
-                    darkModeEnabled = value;
-                  });
-                },
-              ),
-              _buildSettingsTile(
-                icon: Icons.language,
-                title: "Language",
-                subtitle: "English",
-                onTap: () => _showLanguageDialog(),
-              ),
-            ]),
+            // _buildSectionHeader("App Settings"),
+            // _buildSettingsCard([
+            //   _buildSwitchTile(
+            //     icon: Icons.notifications,
+            //     title: "Notifications",
+            //     subtitle: "Enable push notifications",
+            //     value: notificationsEnabled,
+            //     onChanged: (value) {
+            //       setState(() {
+            //         notificationsEnabled = value;
+            //       });
+            //     },
+            //   ),
+            //   _buildSwitchTile(
+            //     icon: Icons.dark_mode,
+            //     title: "Dark Mode",
+            //     subtitle: "Enable dark theme",
+            //     value: darkModeEnabled,
+            //     onChanged: (value) {
+            //       setState(() {
+            //         darkModeEnabled = value;
+            //       });
+            //     },
+            //   ),
+            //   _buildSettingsTile(
+            //     icon: Icons.language,
+            //     title: "Language",
+            //     subtitle: "English",
+            //     onTap: () => _showLanguageDialog(),
+            //   ),
+            // ]),
 
             const SizedBox(height: 16),
 
@@ -388,17 +387,16 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void _performLogout() {
-    // Implement your logout logic here
-    // For example: clear user data, navigate to login screen, etc.
+  void _performLogout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    debugPrint('Token removed');
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Logged out successfully"),
         backgroundColor: Colors.green,
       ),
     );
-
-    // Navigate to login screen (replace with your actual login route)
-    // Navigator.pushReplacementNamed(context, '/login');
+    Navigator.pushReplacementNamed(context, '/login');
   }
 }
