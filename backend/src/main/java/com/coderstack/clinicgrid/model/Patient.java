@@ -26,6 +26,33 @@ public class Patient {
     @ManyToOne(fetch = FetchType.LAZY)
     private Hospital hospital;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User AddedBy;
+
+    public User getAddedBy() {
+        return AddedBy;
+    }
+
+    public void setAddedBy(User addedBy) {
+        AddedBy = addedBy;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public Hospital getHospital() {
+        return hospital;
+    }
+
+    public void setHospital(Hospital hospital) {
+        this.hospital = hospital;
+    }
+
 
     public String getFirstName() {
         return firstName;
