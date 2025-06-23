@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ← for input formatter
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -9,27 +11,43 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _email = TextEditingController();
+  final _phone = TextEditingController(); // ← renamed
   final _password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  /// 👉 1.  Make submit async so we can `await` API / storage calls.
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // 👉 2. Pretend we hit a backend and got a JWT back.
-    //     Replace this with your real API call.
-    const fakeToken = 'ey.fake.jwt.token';
+    final body = {
+      'phone': _phone.text.trim(), // ← phone instead of email
+      'password': _password.text,
+    };
 
-    // 👉 3. Save the token securely (for quick demos SharedPreferences is fine).
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('token', fakeToken);
+    try {
+      final api = ApiService();
+      final result = await api.login(body);
 
-    // 👉 4. Navigate away.
-    if (mounted) {
+      final token = result['token'] as String;
+      final userId = result['user_id'] as num;
+      final role = result['role'] as String;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('token', token);
+      await prefs.setString('user_id', userId.toString());
+      await prefs.setString('role', role);
+
+      if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/home');
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      _showError(e.message);
+    } catch (_) {
+      if (!mounted) return;
+      _showError('Something went wrong. Try again.');
     }
   }
+
+  void _showError(String msg) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +60,8 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 24),
                 child: Text(
                   'Welcome Back',
                   style: TextStyle(
@@ -55,18 +73,26 @@ class _LoginPageState extends State<LoginPage> {
                   textAlign: TextAlign.center,
                 ),
               ),
+
+              /* ---- PHONE FIELD ---- */
               TextFormField(
-                controller: _email,
+                controller: _phone,
+                keyboardType: TextInputType.phone,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly, // digits only
+                ],
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Phone number',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
                 validator: (v) =>
-                    v!.contains('@') ? null : 'Enter a valid email',
+                    (v != null && v.length == 10) ? null : 'Enter 10 digits',
               ),
               const SizedBox(height: 12),
+
+              /* ---- PASSWORD FIELD ---- */
               TextFormField(
                 controller: _password,
                 obscureText: true,
@@ -76,13 +102,12 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                 ),
-                validator: (v) => v!.length >= 6 ? null : 'Min 6 characters',
+                validator: (v) =>
+                    v != null && v.length >= 6 ? null : 'Min 6 characters',
               ),
+
               const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _submit,
-                child: const Text('Sign in'),
-              ),
+              ElevatedButton(onPressed: _submit, child: const Text('Sign in')),
             ],
           ),
         ),
