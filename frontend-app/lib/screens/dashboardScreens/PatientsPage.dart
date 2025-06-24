@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import "../../services/ApiClient.dart";
+import "../../models/Patient.dart";
 
-/// ──────────────────────────────────────────────────────────────
-/// 1) MAIN LIST OF PATIENTS
-/// ──────────────────────────────────────────────────────────────
 class PatientsPage extends StatefulWidget {
   const PatientsPage({super.key});
 
@@ -11,15 +10,44 @@ class PatientsPage extends StatefulWidget {
 }
 
 class _PatientsPageState extends State<PatientsPage> {
-  final List<Patient> _patients = []; // In‑memory demo store
+  List<Patient> _patients = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPatients();
+  }
+
+  Future<void> fetchPatients() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await ApiClient().get("/patient");
+      final patients = (response.data['data'] as List)
+          .map((json) => Patient.fromJson(json))
+          .toList();
+
+      setState(() {
+        _patients = patients;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error fetching patients: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Patients'),
-      ),
-      body: _patients.isEmpty
+      appBar: AppBar(title: const Text('Patients')),
+      body: isLoading ? const Center(child: CircularProgressIndicator()) :_patients.isEmpty
           ? const Center(child: Text('No patients yet'))
           : ListView.separated(
         itemCount: _patients.length,
@@ -40,7 +68,7 @@ class _PatientsPageState extends State<PatientsPage> {
             ),
           );
         },
-      ),
+      ) ,
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPatientDialog(context),
         tooltip: 'Add patient',
@@ -68,14 +96,14 @@ class _PatientsPageState extends State<PatientsPage> {
                 controller: name,
                 decoration: const InputDecoration(labelText: 'Name'),
                 validator: (v) =>
-                (v == null || v.isEmpty) ? 'Enter a name' : null,
+                    (v == null || v.isEmpty) ? 'Enter a name' : null,
               ),
               TextFormField(
                 controller: age,
                 decoration: const InputDecoration(labelText: 'Age'),
                 keyboardType: TextInputType.number,
                 validator: (v) =>
-                (v == null || int.tryParse(v) == null) ? 'Enter age' : null,
+                    (v == null || int.tryParse(v) == null) ? 'Enter age' : null,
               ),
               DropdownButtonFormField<String>(
                 value: gender,
@@ -91,19 +119,24 @@ class _PatientsPageState extends State<PatientsPage> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             child: const Text('Save'),
             onPressed: () {
               if (key.currentState!.validate()) {
-                setState(() => _patients.add(
-                  Patient(
-                    id: DateTime.now().millisecondsSinceEpoch,
-                    name: name.text,
-                    age: int.parse(age.text),
-                    gender: gender,
+                setState(
+                  () => _patients.add(
+                    Patient(
+                      id: DateTime.now().millisecondsSinceEpoch,
+                      name: name.text,
+                      age: int.parse(age.text),
+                      gender: gender,
+                    ),
                   ),
-                ));
+                );
                 Navigator.pop(ctx);
               }
             },
@@ -114,25 +147,6 @@ class _PatientsPageState extends State<PatientsPage> {
   }
 }
 
-/// Simple data‑class for demo purposes
-class Patient {
-  Patient({
-    required this.id,
-    required this.name,
-    required this.age,
-    required this.gender,
-  });
-
-  final int id;
-  final String name;
-  final int age;
-  final String gender;
-  final List<Session> sessions = [];
-}
-
-/// ──────────────────────────────────────────────────────────────
-/// 2) SESSION LIST FOR ONE PATIENT
-/// ──────────────────────────────────────────────────────────────
 class PatientSessionsPage extends StatefulWidget {
   const PatientSessionsPage({super.key, required this.patient});
 
@@ -155,19 +169,21 @@ class _PatientSessionsPageState extends State<PatientSessionsPage> {
       body: sessions.isEmpty
           ? const Center(child: Text('No sessions yet'))
           : ListView.separated(
-        itemCount: sessions.length,
-        separatorBuilder: (_, __) => const Divider(height: 0),
-        itemBuilder: (context, i) {
-          final s = sessions[i];
-          return ListTile(
-            leading: const Icon(Icons.medical_services),
-            title: Text(s.purpose),
-            subtitle: Text(dateFormat(s.date) +
-                (s.notes.isEmpty ? '' : '\nNotes: ${s.notes}')),
-            isThreeLine: s.notes.isNotEmpty,
-          );
-        },
-      ),
+              itemCount: sessions.length,
+              separatorBuilder: (_, __) => const Divider(height: 0),
+              itemBuilder: (context, i) {
+                final s = sessions[i];
+                return ListTile(
+                  leading: const Icon(Icons.medical_services),
+                  title: Text(s.purpose),
+                  subtitle: Text(
+                    dateFormat(s.date) +
+                        (s.notes.isEmpty ? '' : '\nNotes: ${s.notes}'),
+                  ),
+                  isThreeLine: s.notes.isNotEmpty,
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddSessionDialog(context),
         tooltip: 'Add session',
@@ -196,11 +212,13 @@ class _PatientSessionsPageState extends State<PatientSessionsPage> {
                   controller: purpose,
                   decoration: const InputDecoration(labelText: 'Purpose'),
                   validator: (v) =>
-                  (v == null || v.isEmpty) ? 'Enter purpose' : null,
+                      (v == null || v.isEmpty) ? 'Enter purpose' : null,
                 ),
                 TextFormField(
                   controller: notes,
-                  decoration: const InputDecoration(labelText: 'Notes (optional)'),
+                  decoration: const InputDecoration(
+                    labelText: 'Notes (optional)',
+                  ),
                   maxLines: 3,
                 ),
                 const SizedBox(height: 12),
@@ -229,14 +247,21 @@ class _PatientSessionsPageState extends State<PatientSessionsPage> {
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             child: const Text('Save'),
             onPressed: () {
               if (key.currentState!.validate()) {
                 setState(() {
                   widget.patient.sessions.add(
-                    Session(date: date, purpose: purpose.text, notes: notes.text),
+                    Session(
+                      date: date,
+                      purpose: purpose.text,
+                      notes: notes.text,
+                    ),
                   );
                 });
                 Navigator.pop(ctx);
@@ -250,12 +275,6 @@ class _PatientSessionsPageState extends State<PatientSessionsPage> {
 }
 
 /// Data‑class and nice date formatting helper
-class Session {
-  Session({required this.date, required this.purpose, required this.notes});
-  final DateTime date;
-  final String purpose;
-  final String notes;
-}
 
 String dateFormat(DateTime d) =>
     '${d.day.toString().padLeft(2, '0')}/${d.month.toString().padLeft(2, '0')}/${d.year}';

@@ -1,11 +1,14 @@
 package com.coderstack.clinicgrid.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
 @Entity
 @Table(name = "patients")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Patient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,17 +27,19 @@ public class Patient {
     private String city;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     private Hospital hospital;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private User AddedBy;
+    @JsonIgnore
+    private User addedBy;
 
     public User getAddedBy() {
-        return AddedBy;
+        return addedBy;
     }
 
     public void setAddedBy(User addedBy) {
-        AddedBy = addedBy;
+        this.addedBy = addedBy;
     }
 
     public String getCity() {

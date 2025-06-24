@@ -11,5 +11,7 @@ import java.util.List;
 public interface PatientRepository extends JpaRepository<Patient, Integer> {
     Patient findByPhone(String phone);
 
+    Patient findByIdAndHospital(int id, Hospital hospital);
+
     List<Patient> findByHospital(Hospital hospital);
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,10 +30,10 @@ public class PatientController {
 
 
     @PostMapping("/patient")
-    public ResponseEntity<?> addNewPatient(@RequestBody AddNewPatient newPatient, @PathVariable int hospital_id,@PathVariable int user_id){
-        Hospital hospital=hospitalRepository.findById(hospital_id).orElseThrow(()-> new ResourceNotFoundException("Invalid hospital"));
-        User user=userRepository.findById(user_id).orElseThrow(()-> new ResourceNotFoundException("Invalid hospital"));
-        Patient patient=new Patient();
+    public ResponseEntity<?> addNewPatient(@RequestBody AddNewPatient newPatient, @PathVariable int hospital_id, @PathVariable int user_id) {
+        Hospital hospital = hospitalRepository.findById(hospital_id).orElseThrow(() -> new ResourceNotFoundException("Invalid hospital"));
+        User user = userRepository.findById(user_id).orElseThrow(() -> new ResourceNotFoundException("Invalid hospital"));
+        Patient patient = new Patient();
         patient.setFirstName(newPatient.getFirstName());
         patient.setLastName(newPatient.getLastName());
         patient.setAddress(newPatient.getAddress());
@@ -43,13 +44,40 @@ public class PatientController {
         patient.setCity(newPatient.getCity());
         patient.setAddedBy(user);
         patient.setHospital(hospital);
-        Patient savedPatient=patientRepository.save(patient);
+        Patient savedPatient = patientRepository.save(patient);
         return ResponseEntity.ok(
-                Map.of("message","saved successfully","id",savedPatient.getId())
+                Map.of("message", "saved successfully", "id", savedPatient.getId())
         );
 
     }
 
-//    @GetMapping("/patient")
-    
+    @GetMapping("/patient")
+    public ResponseEntity<?> getPatients(@PathVariable int hospital_id, @PathVariable int user_id) {
+        Hospital hospital = hospitalRepository.findById(hospital_id).orElseThrow(() -> new ResourceNotFoundException("Invalid hospital"));
+        List<Patient> patients = patientRepository.findByHospital(hospital);
+        return ResponseEntity.ok(Map.of("data", patients));
+    }
+
+    @PutMapping("/patient/{patient_id}")
+    public ResponseEntity<?> EditPatient(@RequestBody AddNewPatient editPatient, @PathVariable int patient_id, @PathVariable int hospital_id, @PathVariable int user_id) {
+        Hospital hospital = hospitalRepository.findById(hospital_id).orElseThrow(() -> new ResourceNotFoundException("Invalid hospital"));
+        Patient patient = patientRepository.findByIdAndHospital(patient_id, hospital);
+        if (patient == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "patient not found"));
+        }
+        patient.setFirstName(editPatient.getFirstName());
+        patient.setLastName(editPatient.getLastName());
+        patient.setAddress(editPatient.getAddress());
+        patient.setDateOfBirth(editPatient.getDateOfBirth());
+        patient.setGender(editPatient.getGender());
+        patient.setEmail(editPatient.getEmail());
+        patient.setPhone(editPatient.getPhone());
+        patient.setCity(editPatient.getCity());
+        Patient savedPatient = patientRepository.save(patient);
+        return ResponseEntity.ok(
+                Map.of("message", "saved successfully", "id", savedPatient.getId())
+        );
+    }
+
+
 }

@@ -29,10 +29,12 @@ class _LoginPageState extends State<LoginPage> {
 
       final token = result['token'] as String;
       final userId = result['user_id'] as num;
+      final hospitalId=result['hospital_id'] as num;
       final role = result['role'] as String;
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('token', token);
       await prefs.setString('user_id', userId.toString());
+      await prefs.setString('hospital_id', hospitalId.toString());
       await prefs.setString('role', role);
 
       if (!mounted) return;
