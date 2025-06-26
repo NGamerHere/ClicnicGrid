@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import "../../services/ApiClient.dart";
 import "../../models/Patient.dart";
+import '../../theme/colourSchema.dart';
 
 class PatientsPage extends StatefulWidget {
   const PatientsPage({super.key});
@@ -56,6 +57,8 @@ class _PatientsPageState extends State<PatientsPage> {
           final p = _patients[i];
           return ListTile(
             leading: CircleAvatar(
+              backgroundColor: AppColors.mainColour,
+              foregroundColor: Colors.white,
               child: Text(p.name.substring(0, 1).toUpperCase()),
             ),
             title: Text(p.name),
@@ -72,6 +75,8 @@ class _PatientsPageState extends State<PatientsPage> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddPatientDialog(context),
         tooltip: 'Add patient',
+        backgroundColor: AppColors.mainColour,
+        foregroundColor: Colors.white,
         child: const Icon(Icons.person_add),
       ),
     );

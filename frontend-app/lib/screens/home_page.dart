@@ -4,6 +4,7 @@ import './dashboardScreens/Dashboard.dart';
 import './dashboardScreens/pharmacy.dart';
 import "./dashboardScreens/Settings.dart";
 import "./dashboardScreens/PatientsPage.dart";
+import '../theme/colourSchema.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -50,7 +51,7 @@ class _HomePageState extends State<HomePage> {
         ],
         currentIndex: _selectedIndex,
         // which one is active
-        selectedItemColor: const Color(0xFF8435A5),
+        selectedItemColor: AppColors.mainColour,
         onTap: _onItemTapped, // when tapped, call this
       ),
     );

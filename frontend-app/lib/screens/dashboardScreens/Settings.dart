@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../theme/colourSchema.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -129,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             CircleAvatar(
               radius: 40,
-              backgroundColor: Colors.blue,
+              backgroundColor: AppColors.mainColour,
               child: Text(
                 userName.split(' ').map((e) => e[0]).join().toUpperCase(),
                 style: const TextStyle(
@@ -189,7 +190,7 @@ class _SettingsPageState extends State<SettingsPage> {
         style: const TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.bold,
-          color: Colors.blue,
+          color: AppColors.mainColour,
         ),
       ),
     );
@@ -211,7 +212,7 @@ class _SettingsPageState extends State<SettingsPage> {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.blue),
+      leading: Icon(icon, color: AppColors.mainColour),
       title: Text(title),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
@@ -246,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
         icon: const Icon(Icons.logout),
         label: const Text("Logout"),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.logoutButton,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 12),
           shape: RoundedRectangleBorder(
