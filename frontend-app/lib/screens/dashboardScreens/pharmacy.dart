@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "../../services/ApiClient.dart";
 import './InventoryScreen.dart';
 import "./SalesScreen.dart";
+import "../dashboardScreens/AddMedicineScreen.dart";
 
 class PharmacyPage extends StatefulWidget {
   const PharmacyPage({super.key});
@@ -109,7 +110,12 @@ class _PharmacyPageState extends State<PharmacyPage> {
       ),
 
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddSupplierDialog(context),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => AddMedicineScreen(),
+          ),
+        ),
         tooltip: 'Quick‑add supplier',
         child: const Icon(Icons.add),
       ),

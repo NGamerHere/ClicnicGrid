@@ -8,8 +8,11 @@ import com.coderstack.clinicgrid.repository.HospitalRepository;
 import com.coderstack.clinicgrid.repository.MedicineRepository;
 import com.coderstack.clinicgrid.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import jakarta.validation.Valid;
 
@@ -47,6 +50,7 @@ public class MedicineController {
         medicine.setType(newMedicine.getType());
         medicine.setWeight(newMedicine.getWeight());
         medicine.setVolume(newMedicine.getVolume());
+        medicine.setQuantity(newMedicine.getQuantity());
         medicine.setExpiresOn(newMedicine.getExpiresOn());
         medicine.setAddedOn(LocalDate.now());
 
@@ -57,12 +61,28 @@ public class MedicineController {
     @GetMapping("/medicine")
     public ResponseEntity<?> getMedicine(
             @PathVariable int hospital_id,
-            @PathVariable int user_id
+            @PathVariable int user_id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
     ) {
+        Pageable pageable = PageRequest.of(page, size);
         Hospital hospital = hospitalRepository.findById(hospital_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid hospital"));
-        return ResponseEntity.ok(medicineRepository.findByHospital(hospital));
+        return ResponseEntity.ok(medicineRepository.findByHospital(hospital, pageable));
     }
+
+    @GetMapping("/medicine/search")
+    public ResponseEntity<?> searchMedicine(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Medicine> results = medicineRepository.findByNameContainingIgnoreCase(query, pageable);
+        return ResponseEntity.ok(results);
+    }
+
+
 
     @PutMapping("/medicine/{medicineId}")
     public ResponseEntity<?> updateMedicine(
