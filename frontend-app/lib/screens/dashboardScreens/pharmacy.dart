@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import "../../services/ApiClient.dart";
 
 class PharmacyPage extends StatefulWidget {
   const PharmacyPage({super.key});
@@ -10,8 +11,8 @@ class PharmacyPage extends StatefulWidget {
 class _PharmacyPageState extends State<PharmacyPage> {
   // Fake data – replace with a real repository / REST call.
   int _totalItems = 0;
-  int _lowStock   = 0;
-  int _expired    = 0;
+  int _lowStock = 0;
+  int _expired = 0;
   int _outOfStock = 0;
 
   @override
@@ -21,13 +22,14 @@ class _PharmacyPageState extends State<PharmacyPage> {
   }
 
   Future<void> _fetchStockSummary() async {
-    // Simulate a delay then update state
-    await Future.delayed(const Duration(milliseconds: 400));
+    final response = await ApiClient().get("/medicine/dashboard");
+    final data = response.data;
+
     setState(() {
-      _totalItems = 1240;
-      _lowStock   = 73;
-      _expired    = 15;
-      _outOfStock = 9;
+      _totalItems = data['total'];
+      _lowStock = data['lowStock'];
+      _expired = data['expired'];
+      _outOfStock = data['outOfStock'];
     });
   }
 
@@ -46,7 +48,6 @@ class _PharmacyPageState extends State<PharmacyPage> {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            // ───── 1) FOUR STATUS CARDS ─────
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -148,14 +149,15 @@ class _PharmacyPageState extends State<PharmacyPage> {
                 controller: name,
                 decoration: const InputDecoration(labelText: 'Name'),
                 validator: (v) =>
-                (v == null || v.isEmpty) ? 'Enter a name' : null,
+                    (v == null || v.isEmpty) ? 'Enter a name' : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: email,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (v) =>
-                (v != null && v.contains('@')) ? null : 'Enter valid e‑mail',
+                validator: (v) => (v != null && v.contains('@'))
+                    ? null
+                    : 'Enter valid e‑mail',
               ),
             ],
           ),
@@ -212,8 +214,10 @@ class _StatusCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(title,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );

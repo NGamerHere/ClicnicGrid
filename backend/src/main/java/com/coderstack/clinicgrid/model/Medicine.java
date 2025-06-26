@@ -1,6 +1,9 @@
 package com.coderstack.clinicgrid.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "medicines")
@@ -18,6 +21,29 @@ public class Medicine {
     private double weight;
     private double volume;
 
+    private LocalDate expiresOn;
+    private LocalDate addedOn;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Hospital hospital;
+
+    public LocalDate getAddedOn() {
+        return addedOn;
+    }
+
+    public void setAddedOn(LocalDate addedOn) {
+        this.addedOn = addedOn;
+    }
+
+    public LocalDate getExpiresOn() {
+        return expiresOn;
+    }
+
+    public void setExpiresOn(LocalDate expiresOn) {
+        this.expiresOn = expiresOn;
+    }
+
     public Hospital getHospital() {
         return hospital;
     }
@@ -26,8 +52,6 @@ public class Medicine {
         this.hospital = hospital;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Hospital hospital;
 
     public double getVolume() {
         return volume;
