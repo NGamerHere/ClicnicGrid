@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import "../../services/ApiClient.dart";
+import './InventoryScreen.dart';
+import "./SalesScreen.dart";
 
 class PharmacyPage extends StatefulWidget {
   const PharmacyPage({super.key});
@@ -114,22 +116,24 @@ class _PharmacyPageState extends State<PharmacyPage> {
     );
   }
 
-  // ─────────────────────────────────────────
-  // Navigation stubs
-  // ─────────────────────────────────────────
   void goToInventory() {
-    // Navigator.push(...)
-    debugPrint('→ Inventory page');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => InventoryScreen(),
+      ),
+    );
   }
 
   void goToSales() {
-    // Navigator.push(...)
-    debugPrint('→ Sales page');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SalesScreen(),
+      ),
+    );
   }
 
-  // ─────────────────────────────────────────
-  // Quick‑add supplier dialog (same as before)
-  // ─────────────────────────────────────────
   void _showAddSupplierDialog(BuildContext context) {
     final formKey = GlobalKey<FormState>();
     final name = TextEditingController();

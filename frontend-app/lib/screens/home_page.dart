@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import './dashboardScreens/Dashboard.dart';
 import './dashboardScreens/pharmacy.dart';
 import "./dashboardScreens/Settings.dart";
-import "./dashboardScreens/PatientsPage.dart";
+import "./dashboardScreens/PatientsScreen.dart";
 import '../theme/colourSchema.dart';
 
 class HomePage extends StatefulWidget {
