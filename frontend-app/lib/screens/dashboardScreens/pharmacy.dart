@@ -9,7 +9,6 @@ class PharmacyPage extends StatefulWidget {
 }
 
 class _PharmacyPageState extends State<PharmacyPage> {
-  // Fake data – replace with a real repository / REST call.
   int _totalItems = 0;
   int _lowStock = 0;
   int _expired = 0;

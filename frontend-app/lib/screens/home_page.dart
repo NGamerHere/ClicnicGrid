@@ -50,7 +50,7 @@ class _HomePageState extends State<HomePage> {
         ],
         currentIndex: _selectedIndex,
         // which one is active
-        selectedItemColor: Colors.blue,
+        selectedItemColor: const Color(0xFF8435A5),
         onTap: _onItemTapped, // when tapped, call this
       ),
     );

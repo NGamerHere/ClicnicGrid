@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // ← for input formatter
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/api_service.dart';
+import "../components/MainTitle.dart";
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,7 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _phone = TextEditingController(); // ← renamed
+  final _phone = TextEditingController();
   final _password = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -19,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final body = {
-      'phone': _phone.text.trim(), // ← phone instead of email
+      'phone': _phone.text.trim(),
       'password': _password.text,
     };
 
@@ -62,19 +63,24 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               const Padding(
-                padding: EdgeInsets.only(bottom: 24),
-                child: Text(
-                  'Welcome Back',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    letterSpacing: 1.2,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                  padding: EdgeInsets.only(bottom: 24),
+                  child: Maintitle(),
               ),
+              // const Padding(
+              //   padding: EdgeInsets.only(bottom: 24),
+              //   child: Text(
+              //     'Welcome Back',
+              //     style: TextStyle(
+              //       fontSize: 28,
+              //       fontWeight: FontWeight.bold,
+              //       color: Colors.black87,
+              //       letterSpacing: 1.2,
+              //     ),
+              //     textAlign: TextAlign.center,
+              //   ),
+              // ),
 
               /* ---- PHONE FIELD ---- */
               TextFormField(
