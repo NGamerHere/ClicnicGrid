@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import "../../models/InventoryItem.dart";
 import "../../services/ApiClient.dart";
+import "./SingleInventoryScreen.dart";
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -15,12 +16,52 @@ class __InventoryScreen extends State<InventoryScreen> {
   TextEditingController searchController = TextEditingController();
   Timer? _debounce;
   bool isLoading = false;
+  int currentPage = 0;
+  bool isLastPage = false;
+  final int pageSize = 20;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
-    _fetchAll();
+    _scrollController = ScrollController()..addListener(_onScroll);
+    _fetchPage();
     searchController.addListener(_onSearchChanged);
+  }
+
+  void _fetchPage() async {
+    if (isLoading || isLastPage) return;
+
+    setState(() => isLoading = true);
+
+    final response = await ApiClient().get(
+      "/medicine?page=$currentPage&size=$pageSize",
+    );
+
+    if (response.statusCode == 200) {
+      final rawList = response.data['content'] ?? response.data;
+
+      final List<InventoryItem> parsed = (rawList as List)
+          .map((item) => InventoryItem.fromJson(item as Map<String, dynamic>))
+          .toList();
+
+      setState(() {
+        results.addAll(parsed);
+        isLastPage = parsed.length < pageSize;
+        currentPage++;
+      });
+    } else {
+      debugPrint("Error fetching page: ${response.statusCode}");
+    }
+
+    setState(() => isLoading = false);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      _fetchPage();
+    }
   }
 
   void _fetchAll() async {
@@ -42,7 +83,6 @@ class __InventoryScreen extends State<InventoryScreen> {
     }
     setState(() => isLoading = false);
   }
-
 
   void _onSearchChanged() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
@@ -75,6 +115,7 @@ class __InventoryScreen extends State<InventoryScreen> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     searchController.dispose();
     _debounce?.cancel();
     super.dispose();
@@ -84,8 +125,10 @@ class __InventoryScreen extends State<InventoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Inventory Management",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+        title: const Text(
+          "Inventory Management",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+        ),
       ),
       body: Column(
         children: [
@@ -103,80 +146,104 @@ class __InventoryScreen extends State<InventoryScreen> {
             ),
           ),
           Expanded(
-            child: isLoading
+            child: isLoading && results.isEmpty
                 ? const Center(child: CircularProgressIndicator())
                 : results.isEmpty
                 ? const Center(child: Text("No results found"))
                 : ListView.builder(
-              itemCount: results.length,
-              itemBuilder: (context, index) {
-                final item = results[index];
-                return Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              item.name,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                    controller: _scrollController,
+                    itemCount: results.length + (isLastPage ? 0 : 1),
+                    itemBuilder: (context, index) {
+                      if (index == results.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final item = results[index];
+                      return Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => SingleInventoryScreen(item: item),
+                                        ),
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom:  10.0),
+                                      child: Text(item.name,style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold),),
+                                    ),
+                                  ),
+                                  Chip(
+                                    label: Text(
+                                      item.type,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor: Colors.deepPurple,
+                                  ),
+                                ],
                               ),
-                            ),
-                            Chip(
-                              label: Text(
-                                item.type,
+                              const SizedBox(height: 8),
+                              Text(item.description),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 10,
+                                runSpacing: 6,
+                                children: [
+                                  _buildInfoChip(
+                                    "₹${item.price}",
+                                    Icons.currency_rupee,
+                                  ),
+                                  _buildInfoChip(
+                                    "Qty: ${item.quantity}",
+                                    Icons.inventory,
+                                  ),
+                                  _buildInfoChip(
+                                    "Stack: ${item.itemsPerStack}",
+                                    Icons.layers,
+                                  ),
+                                  _buildInfoChip(
+                                    "Weight: ${item.weight}g",
+                                    Icons.scale,
+                                  ),
+                                  _buildInfoChip(
+                                    "Volume: ${item.volume}ml",
+                                    Icons.local_drink,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Expires: ${item.expiresOn}",
                                 style: const TextStyle(
-                                    color: Colors.white),
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              backgroundColor: Colors.deepPurple,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(item.description),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 10,
-                          runSpacing: 6,
-                          children: [
-                            _buildInfoChip(
-                                "₹${item.price}", Icons.currency_rupee),
-                            _buildInfoChip(
-                                "Qty: ${item.quantity}", Icons.inventory),
-                            _buildInfoChip("Stack: ${item.itemsPerStack}",
-                                Icons.layers),
-                            _buildInfoChip(
-                                "Weight: ${item.weight}g", Icons.scale),
-                            _buildInfoChip(
-                                "Volume: ${item.volume}ml",
-                                Icons.local_drink),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          // "Expires: ${item.expiresOn.split('T')[0]}",
-                          "Expires: ${item.expiresOn}",
-                          style: const TextStyle(
-                            color: Colors.redAccent,
-                            fontWeight: FontWeight.bold,
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
