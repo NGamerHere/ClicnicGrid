@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'screens/login_page.dart';
-import 'screens/home_page.dart';
+import 'screens/LoginScreen.dart';
+import 'screens/HomeScreen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
