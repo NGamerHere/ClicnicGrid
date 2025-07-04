@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
@@ -27,13 +28,15 @@ public class TreatmentController {
     private HospitalRepository hospitalRepository;
 
     @PostMapping("/treatment")
-    public ResponseEntity<?> addNewTreatment(@RequestBody AddNewTreatment newTreatment, @PathVariable int hospital_id, @PathVariable int user_id) {
+    public ResponseEntity<?> addNewTreatment(@Valid @RequestBody AddNewTreatment newTreatment, @PathVariable int hospital_id, @PathVariable int user_id) {
         User user = userRepository.findById(user_id).orElseThrow(() -> new ResourceNotFoundException("user not found"));
         Hospital hospital = hospitalRepository.findById(hospital_id).orElseThrow(() -> new ResourceNotFoundException("hospital not found"));
 
         Treatment treatment = new Treatment();
         treatment.setName(newTreatment.getName());
-        treatment.setBasePrice(newTreatment.getBasePrice());
+        treatment.setDaysBetweenSessions(newTreatment.getDaysBetweenSessions());
+        treatment.setTotalPrice(newTreatment.getTotalPrice());
+        treatment.setPricePerSession(newTreatment.getPricePerSession());
         treatment.setDescription(newTreatment.getDescription());
         treatment.setMaxDuration(newTreatment.getMaxDuration());
         treatment.setTotalSessions(newTreatment.getTotalSessions());

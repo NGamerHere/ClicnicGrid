@@ -11,4 +11,6 @@ import java.util.List;
 public interface TreatmentRepository extends JpaRepository<Treatment, Integer> {
 
     List<Treatment> findAllByHospital(Hospital hospital);
+
+    Treatment findByIdAndHospital(int id, Hospital hospital);
 }

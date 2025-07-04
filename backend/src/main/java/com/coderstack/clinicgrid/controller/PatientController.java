@@ -1,13 +1,17 @@
 package com.coderstack.clinicgrid.controller;
 
 import com.coderstack.clinicgrid.dto.AddNewPatient;
+import com.coderstack.clinicgrid.dto.NewSession;
 import com.coderstack.clinicgrid.exceptions.ResourceNotFoundException;
 import com.coderstack.clinicgrid.model.Hospital;
 import com.coderstack.clinicgrid.model.Patient;
+import com.coderstack.clinicgrid.model.Treatment;
 import com.coderstack.clinicgrid.model.User;
 import com.coderstack.clinicgrid.repository.HospitalRepository;
 import com.coderstack.clinicgrid.repository.PatientRepository;
+import com.coderstack.clinicgrid.repository.TreatmentRepository;
 import com.coderstack.clinicgrid.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +31,9 @@ public class PatientController {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    TreatmentRepository treatmentRepository;
 
 
     @PostMapping("/patient")
@@ -77,6 +84,20 @@ public class PatientController {
         return ResponseEntity.ok(
                 Map.of("message", "saved successfully", "id", savedPatient.getId())
         );
+    }
+
+    @GetMapping("/session")
+    public ResponseEntity<?> addSession(@Valid NewSession newSession, @PathVariable int hospital_id, @PathVariable int user_id ){
+        Hospital hospital = hospitalRepository.findById(hospital_id).orElseThrow(() -> new ResourceNotFoundException("Invalid hospital"));
+        Patient patient = patientRepository.findByIdAndHospital(newSession.getPatientId(), hospital);
+        if(patient == null ){
+            return ResponseEntity.status(404).body(Map.of("error","patient info was not found"));
+        }
+        Treatment treatment=treatmentRepository.findByIdAndHospital(newSession.getTreatmentId(),hospital);
+        if(treatment == null ){
+            return ResponseEntity.status(404).body(Map.of("error","treatment was not found"));
+        }
+        return ResponseEntity.status(200).body(Map.of("message","saved done"));
     }
 
 

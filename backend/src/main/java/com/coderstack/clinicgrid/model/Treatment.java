@@ -1,5 +1,6 @@
 package com.coderstack.clinicgrid.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,21 +12,17 @@ public class Treatment {
 
     private String name;
     private String description;
-    private Double basePrice;
+
+    private Double totalPrice;
+    private Double pricePerSession;
     private Integer defaultDuration;
     private Integer maxDuration;
     private Integer totalSessions;
+    private Integer daysBetweenSessions;
 
     @ManyToOne
+    @JsonIgnore
     private Hospital hospital;
-
-    public Double getBasePrice() {
-        return basePrice;
-    }
-
-    public void setBasePrice(Double basePrice) {
-        this.basePrice = basePrice;
-    }
 
     public Integer getDefaultDuration() {
         return defaultDuration;
@@ -81,5 +78,28 @@ public class Treatment {
 
     public void setHospital(Hospital hospital) {
         this.hospital = hospital;
+    }
+    public Integer getDaysBetweenSessions() {
+        return daysBetweenSessions;
+    }
+
+    public void setDaysBetweenSessions(Integer daysBetweenSessions) {
+        this.daysBetweenSessions = daysBetweenSessions;
+    }
+
+    public Double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(Double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public Double getPricePerSession() {
+        return pricePerSession;
+    }
+
+    public void setPricePerSession(Double pricePerSession) {
+        this.pricePerSession = pricePerSession;
     }
 }
